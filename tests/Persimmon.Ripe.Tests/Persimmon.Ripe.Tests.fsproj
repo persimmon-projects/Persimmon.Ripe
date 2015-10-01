@@ -70,13 +70,6 @@
   </Target>
   -->
   <ItemGroup>
-    <Reference Include="Cricket">
-      <HintPath>..\..\packages\Cricket\lib\Cricket.dll</HintPath>
-      <Private>True</Private>
-      <Paket>True</Paket>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Persimmon.Ripe\Persimmon.Ripe.fsproj">
       <Name>Persimmon.Ripe</Name>
       <Project>{fb706671-5fe0-47e2-b1b5-879d651fb653}</Project>
@@ -135,6 +128,17 @@
       <ItemGroup>
         <Reference Include="Persimmon">
           <HintPath>..\..\packages\Persimmon\lib\net20\Persimmon.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')">
+      <ItemGroup>
+        <Reference Include="RabbitMQ.Client">
+          <HintPath>..\..\packages\RabbitMQ.Client\lib\net40\RabbitMQ.Client.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
