@@ -2,9 +2,9 @@
 open System.Reflection
 open System.Runtime.InteropServices
 
-[<assembly: AssemblyTitleAttribute("Persimmon.Ripe")>]
+[<assembly: AssemblyTitleAttribute("Persimmon.Ripe.Console")>]
 [<assembly: AssemblyDescriptionAttribute("")>]
-[<assembly: GuidAttribute("fb706671-5fe0-47e2-b1b5-879d651fb653")>]
+[<assembly: GuidAttribute("22E8C97F-E884-4C1E-A5A4-D80BAB8A33B9")>]
 [<assembly: AssemblyProductAttribute("Persimmon.Ripe")>]
 [<assembly: AssemblyVersionAttribute("0.1.0")>]
 [<assembly: AssemblyFileVersionAttribute("0.1.0")>]

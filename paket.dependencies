@@ -8,6 +8,7 @@ nuget Nuget.CommandLine
 nuget RabbitMQ.Client
 nuget SourceLink.Fake
 nuget Persimmon
+nuget Persimmon.Runner
 nuget FsPickler
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx

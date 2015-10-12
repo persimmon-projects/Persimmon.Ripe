@@ -14,14 +14,6 @@ open SourceLink
 
 let project = "Persimmon.Ripe"
 
-// Short summary of the project
-// (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = ""
-
-// Longer description of the project
-// (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = ""
-
 // List of author names (for NuGet package)
 let authors = [ "bleis-tift"; "Gab-km"; "pocketberserker" ]
 
@@ -63,31 +55,26 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-    let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName)
-          Attribute.Product project
-          Attribute.Guid "fb706671-5fe0-47e2-b1b5-879d651fb653"
-          Attribute.Description summary
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion
-          Attribute.InformationalVersion release.NugetVersion ]
+    let common = [
+        Attribute.Product project
+        Attribute.Version release.AssemblyVersion
+        Attribute.FileVersion release.AssemblyVersion
+        Attribute.InformationalVersion release.NugetVersion
+    ]
 
-    let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
-        )
+    [
+        Attribute.Title "Persimmon.Ripe"
+        Attribute.Description ""
+        Attribute.Guid "fb706671-5fe0-47e2-b1b5-879d651fb653"
+    ] @ common
+    |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe/AssemblyInfo.fs"
 
-    !! "src/**/*.??proj"
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
-        match projFileName with
-        | Fsproj -> CreateFSharpAssemblyInfo (("src" @@ folderName) @@ "AssemblyInfo.fs") attributes
-        | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
-        )
+    [
+        Attribute.Title "Persimmon.Ripe.Console"
+        Attribute.Description ""
+        Attribute.Guid "22E8C97F-E884-4C1E-A5A4-D80BAB8A33B9"
+    ] @ common
+    |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.Console/AssemblyInfo.fs"
 )
 
 // Copies binaries from default VS location to exepcted bin folder

@@ -17,6 +17,8 @@ NUGET
       Microsoft.Net.Http
     Persimmon (1.0.0-beta8)
     Persimmon.Console (1.0.0-beta8)
+    Persimmon.Runner (1.0.0-beta8)
+      Persimmon (>= 1.0.0-beta8)
     RabbitMQ.Client (3.5.6)
     SourceLink.Fake (1.1.0)
 GITHUB
