@@ -10,5 +10,6 @@ nuget SourceLink.Fake
 nuget Persimmon
 nuget Persimmon.Runner
 nuget FsPickler
+nuget FsYaml
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx

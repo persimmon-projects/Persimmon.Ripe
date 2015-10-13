@@ -3,7 +3,7 @@
 open System
 
 type RabbitMQ = {
-  Uri: Uri
+  Uri: string
   UserName: string
   Password: string
 }
@@ -13,13 +13,3 @@ module RabbitMQ =
 
   [<Literal>]
   let Exchange = "persimmon_ripe"
-
-  let parse uri name password =
-    match Uri.TryCreate(uri, UriKind.Absolute) with
-    | true, uri ->
-      Some {
-        Uri = uri
-        UserName = name
-        Password = password
-      }
-    | false, _ -> None

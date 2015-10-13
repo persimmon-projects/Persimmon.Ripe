@@ -2,10 +2,14 @@ NUGET
   remote: https://nuget.org/api/v2
   specs:
     FAKE (4.4.4)
-    FAKE.Lib (4.5.6)
+    FAKE.Lib (4.7.1)
     FAKE.Persimmon (1.0.0-beta3)
       FAKE.Lib (>= 4.1.0)
+    FSharp.Configuration (0.5.3)
     FsPickler (1.5.1)
+    FsYaml (2.0.0)
+      FSharp.Configuration (>= 0.4.10)
+      YamlDotNet (>= 3.5.1)
     Microsoft.Bcl (1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Bcl.Build (1.0.21) - import_targets: false
@@ -21,8 +25,9 @@ NUGET
       Persimmon (>= 1.0.0-beta8)
     RabbitMQ.Client (3.5.6)
     SourceLink.Fake (1.1.0)
+    YamlDotNet (3.7.0)
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (69d76aa6155b484391b0261c908a592f0233d03d)
+    modules/Octokit/Octokit.fsx (0cedad490fa06bd072823b2215f3f05cf917a7ba)
       Octokit

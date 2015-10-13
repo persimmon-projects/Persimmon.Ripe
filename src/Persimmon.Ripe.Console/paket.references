@@ -2,3 +2,4 @@ Persimmon
 Persimmon.Runner
 RabbitMQ.Client
 FsPickler
+FsYaml
