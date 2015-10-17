@@ -14,6 +14,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Tests", "tes
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Console", "src\Persimmon.Ripe.Console\Persimmon.Ripe.Console.fsproj", "{BDAEB4EE-4446-4B57-AD53-E78DF4277535}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Server", "src\Persimmon.Ripe.Server\Persimmon.Ripe.Server.fsproj", "{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{BDAEB4EE-4446-4B57-AD53-E78DF4277535}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDAEB4EE-4446-4B57-AD53-E78DF4277535}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDAEB4EE-4446-4B57-AD53-E78DF4277535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
