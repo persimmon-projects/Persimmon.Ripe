@@ -9,7 +9,7 @@ open Config
 open Persimmon
 open Persimmon.ActivePatterns
 
-type ResultCollector(config: RabbitMQ, tests: Map<Guid, TestObject>) =
+type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, tests: Map<Guid, TestObject>) =
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
@@ -19,14 +19,18 @@ type ResultCollector(config: RabbitMQ, tests: Map<Guid, TestObject>) =
   let results = ConcurrentDictionary<Guid, ITestResult>()
 
   let add = function
-  | Success(guid, result) -> results.TryAdd(guid, result)
+  | Success(guid, result) ->
+    report result
+    results.TryAdd(guid, result)
   | Failure(v, e) ->
     let guid, t = serializer.UnPickle<Guid * TestObject>(v)
     let metadata =
       match t with
       | Context ctx -> { Name = ctx.Name; Parameters = []}
       | TestCase c -> { Name = c.Name; Parameters = c.Parameters}
-    results.TryAdd(guid, Error(metadata, [e], [], TimeSpan.Zero) :> ITestResult)
+    let result = Error(metadata, [e], [], TimeSpan.Zero) :> ITestResult
+    report result
+    results.TryAdd(guid, result)
 
   // rename
   member __.Results =

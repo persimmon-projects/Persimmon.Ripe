@@ -57,7 +57,7 @@ let entryPoint (args: Args) =
     let tests =
       TestCollector.collectRootTestObjects asms
       |> Seq.map (fun x -> (Guid.NewGuid(), x))
-    use collector = new ResultCollector(config, Map.ofSeq tests)
+    use collector = new ResultCollector(config, reporter.ReportProgress, Map.ofSeq tests)
     collector.Connect()
     use publisher = new Publisher(config)
     tests |> Seq.iter (Publisher.publish publisher "testcase")
