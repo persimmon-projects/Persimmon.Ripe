@@ -36,14 +36,15 @@ type ResultCollector(config: RabbitMQ, tests: Map<Guid, TestObject>) =
 
   member __.Connect() =
     channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
-    channel.QueueBind("", RabbitMQ.Exchange, "result")
+    let queueName = channel.QueueDeclare().QueueName
+    channel.QueueBind(queueName, RabbitMQ.Exchange, "result")
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
       serializer.UnPickle<Result>(args.Body)
       |> add
       |> ignore
     )
-    channel.BasicConsume("", false, consumer) |> ignore
+    channel.BasicConsume(queueName, false, consumer) |> ignore
 
   member __.Dispose() =
     publisher.Dispose()

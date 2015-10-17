@@ -14,6 +14,7 @@ type Publisher(config: RabbitMQ) =
 
   member __.Publish(key, body) =
     channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
+    channel.QueueDeclare() |> ignore
     channel.BasicPublish(RabbitMQ.Exchange, key, null, serializer.Pickle(body))
 
   member __.Dispose() =

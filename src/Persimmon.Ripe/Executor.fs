@@ -21,7 +21,8 @@ type Executor(config: RabbitMQ) =
 
   member __.Connect() =
     channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
-    channel.QueueBind("", RabbitMQ.Exchange, "testcase")
+    let queueName = channel.QueueDeclare().QueueName
+    channel.QueueBind(queueName, RabbitMQ.Exchange, "testcase")
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
       try
@@ -31,7 +32,7 @@ type Executor(config: RabbitMQ) =
       |> serializer.Pickle
       |> Publisher.publish publisher "result"
     )
-    channel.BasicConsume("", false, consumer) |> ignore
+    channel.BasicConsume(queueName, false, consumer) |> ignore
 
   member __.Dispose() =
     publisher.Dispose()
