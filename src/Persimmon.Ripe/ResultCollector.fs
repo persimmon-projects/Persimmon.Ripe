@@ -16,7 +16,6 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
   let connection = Connection.create config
   let channel = Connection.createChannel connection
   let serializer = FsPickler.CreateBinarySerializer()
-  let publisher = new Publisher(config)
 
   let results = ConcurrentBag<ITestResult>()
 
@@ -52,7 +51,6 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
     channel.BasicConsume(queueName, true, consumer) |> ignore
 
   member __.Dispose() =
-    publisher.Dispose()
     channel.Dispose()
     connection.Dispose()
 
