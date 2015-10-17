@@ -20,19 +20,21 @@ type Executor(config: RabbitMQ) =
   | TestCase tc -> tc.Run() :> ITestResult
 
   member __.Connect() =
-    channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
-    let queueName = channel.QueueDeclare().QueueName
-    channel.QueueBind(queueName, RabbitMQ.Exchange, "testcase")
+    channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
+    let queueName = channel.QueueDeclare(RabbitMQ.Queue.TestCase, false, false, false, null).QueueName
+    channel.QueueBind(queueName, RabbitMQ.Exchange, "#")
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
-      try
-        let key, o = serializer.UnPickle<Guid * TestObject>(args.Body)
-        Success(key, run o)
-      with e -> Failure(args.Body, e)
+      let result =
+        try
+          let o = serializer.UnPickle<TestObject>(args.Body)
+          Success(run o)
+        with e -> Failure(args.Body, e)
+      result
       |> serializer.Pickle
-      |> Publisher.publish publisher "result"
+      |> Publisher.publish publisher RabbitMQ.Queue.Result args.RoutingKey
     )
-    channel.BasicConsume(queueName, false, consumer) |> ignore
+    channel.BasicConsume(queueName, true, consumer) |> ignore
 
   member __.Dispose() =
     publisher.Dispose()

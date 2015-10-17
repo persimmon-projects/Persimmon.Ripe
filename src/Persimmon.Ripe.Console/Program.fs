@@ -39,7 +39,6 @@ let entryPoint (args: Args) =
         reporter.ReportSummary(res.ExecutedRootTestResults)
         return res.Errors
     }
-    watch.Start()
     inner rs |> Async.RunSynchronously
 
   if args.Help then
@@ -54,13 +53,14 @@ let entryPoint (args: Args) =
       let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
       Assembly.Load(assemblyRef))
     // collect and run
-    let tests =
-      TestCollector.collectRootTestObjects asms
-      |> Seq.map (fun x -> (Guid.NewGuid(), x))
-    use collector = new ResultCollector(config, reporter.ReportProgress, Map.ofSeq tests)
+    let tests = TestCollector.collectRootTestObjects asms
+    let key = Guid.NewGuid()
+    let keyString = key.ToString()
+    use collector = new ResultCollector(config, reporter.ReportProgress, key, Seq.length tests)
     collector.Connect()
     use publisher = new Publisher(config)
-    tests |> Seq.iter (Publisher.publish publisher "testcase")
+    watch.Start()
+    tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase keyString)
     run collector
   else
     reporter.ReportError("file not found: " + (String.Join(", ", notFounds)))

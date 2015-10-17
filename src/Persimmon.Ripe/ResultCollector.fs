@@ -9,46 +9,47 @@ open Config
 open Persimmon
 open Persimmon.ActivePatterns
 
-type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, tests: Map<Guid, TestObject>) =
+type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, testCount: int) =
+
+  let keyString = key.ToString()
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
   let serializer = FsPickler.CreateBinarySerializer()
   let publisher = new Publisher(config)
 
-  let results = ConcurrentDictionary<Guid, ITestResult>()
+  let results = ConcurrentBag<ITestResult>()
 
   let add = function
-  | Success(guid, result) ->
+  | Success result ->
     report result
-    results.TryAdd(guid, result)
+    results.Add(result)
   | Failure(v, e) ->
-    let guid, t = serializer.UnPickle<Guid * TestObject>(v)
     let metadata =
-      match t with
+      match serializer.UnPickle<TestObject>(v) with
       | Context ctx -> { Name = ctx.Name; Parameters = []}
       | TestCase c -> { Name = c.Name; Parameters = c.Parameters}
     let result = Error(metadata, [e], [], TimeSpan.Zero) :> ITestResult
     report result
-    results.TryAdd(guid, result)
+    results.Add(result)
 
   // rename
   member __.Results =
-    if tests |> Map.forall (fun g1 _ -> results |> Seq.exists (fun (KeyValue(g2, _)) -> g1 = g2)) then
-      Complete(results.Values)
+    if results.Count = testCount then
+      Complete(results)
     else Incomplete
 
   member __.Connect() =
-    channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
-    let queueName = channel.QueueDeclare().QueueName
-    channel.QueueBind(queueName, RabbitMQ.Exchange, "result")
+    channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
+    let queueName = channel.QueueDeclare(RabbitMQ.Queue.Result, false, false, false, null).QueueName
+    channel.QueueBind(queueName, RabbitMQ.Exchange, keyString)
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
       serializer.UnPickle<Result>(args.Body)
       |> add
       |> ignore
     )
-    channel.BasicConsume(queueName, false, consumer) |> ignore
+    channel.BasicConsume(queueName, true, consumer) |> ignore
 
   member __.Dispose() =
     publisher.Dispose()

@@ -12,9 +12,9 @@ type Publisher(config: RabbitMQ) =
   let channel = Connection.createChannel connection
   let serializer = FsPickler.CreateBinarySerializer()
 
-  member __.Publish(key, body) =
-    channel.ExchangeDeclare(RabbitMQ.Exchange, "topic")
-    channel.QueueDeclare() |> ignore
+  member __.Publish(queue, key, body) =
+    channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
+    channel.QueueDeclare(queue, false, false, false, null) |> ignore
     channel.BasicPublish(RabbitMQ.Exchange, key, null, serializer.Pickle(body))
 
   member __.Dispose() =
@@ -27,4 +27,4 @@ type Publisher(config: RabbitMQ) =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Publisher =
 
-  let publish (publisher: Publisher) key body = publisher.Publish(key, body)
+  let publish (publisher: Publisher) queue key body = publisher.Publish(queue, key, body)
