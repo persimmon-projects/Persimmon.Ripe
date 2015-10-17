@@ -65,6 +65,7 @@
     <Compile Include="Types.fs" />
     <Compile Include="Publisher.fs" />
     <Compile Include="Executor.fs" />
+    <Compile Include="ResultCollector.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
