@@ -39,6 +39,7 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
     else Incomplete
 
   member __.Connect() =
+    channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.Result, false, false, false, null).QueueName
     channel.QueueBind(queueName, RabbitMQ.Exchange, keyString)
@@ -47,8 +48,9 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
       serializer.UnPickle<Result>(args.Body)
       |> add
       |> ignore
+      channel.BasicAck(args.DeliveryTag, false)
     )
-    channel.BasicConsume(queueName, true, consumer) |> ignore
+    channel.BasicConsume(queueName, false, consumer) |> ignore
 
   member __.Dispose() =
     channel.Dispose()

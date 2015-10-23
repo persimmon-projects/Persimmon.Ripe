@@ -20,6 +20,7 @@ type Executor(config: RabbitMQ) =
   | TestCase tc -> tc.Run() :> ITestResult
 
   member __.Connect() =
+    channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.TestCase, false, false, false, null).QueueName
     channel.QueueBind(queueName, RabbitMQ.Exchange, "#")
@@ -33,8 +34,9 @@ type Executor(config: RabbitMQ) =
       result
       |> serializer.Pickle
       |> Publisher.publish publisher RabbitMQ.Queue.Result args.RoutingKey
+      channel.BasicAck(args.DeliveryTag, false)
     )
-    channel.BasicConsume(queueName, true, consumer) |> ignore
+    channel.BasicConsume(queueName, false, consumer) |> ignore
 
   member __.Dispose() =
     publisher.Dispose()
