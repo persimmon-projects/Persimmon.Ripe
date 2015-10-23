@@ -19,11 +19,16 @@ type Executor(config: RabbitMQ) =
   | Context ctx -> ctx.Run(ignore) :> ITestResult
   | TestCase tc -> tc.Run() :> ITestResult
 
+  let resultKey (key: string) =
+    match key.Split([|'.'|]) with
+    | [|_; key|] -> sprintf "%s.%s" RabbitMQ.Queue.Result key
+    | _ -> RabbitMQ.Queue.Result
+
   member __.Connect() =
     channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.TestCase, false, false, false, null).QueueName
-    channel.QueueBind(queueName, RabbitMQ.Exchange, "#")
+    channel.QueueBind(queueName, RabbitMQ.Exchange, sprintf "%s.*" RabbitMQ.Queue.TestCase)
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
       let result =
@@ -33,7 +38,7 @@ type Executor(config: RabbitMQ) =
         with e -> Failure(args.Body, e)
       result
       |> serializer.Pickle
-      |> Publisher.publish publisher RabbitMQ.Queue.Result args.RoutingKey
+      |> Publisher.publish publisher RabbitMQ.Queue.Result (resultKey args.RoutingKey)
       channel.BasicAck(args.DeliveryTag, false)
     )
     channel.BasicConsume(queueName, false, consumer) |> ignore

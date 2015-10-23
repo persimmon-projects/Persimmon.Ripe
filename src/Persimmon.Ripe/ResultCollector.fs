@@ -42,7 +42,7 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
     channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.Result, false, false, false, null).QueueName
-    channel.QueueBind(queueName, RabbitMQ.Exchange, keyString)
+    channel.QueueBind(queueName, RabbitMQ.Exchange, sprintf "%s.%s" RabbitMQ.Queue.Result keyString)
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
       serializer.UnPickle<Result>(args.Body)

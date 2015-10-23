@@ -55,7 +55,7 @@ let entryPoint (args: Args) =
     // collect and run
     let tests = TestCollector.collectRootTestObjects asms
     let key = Guid.NewGuid()
-    let keyString = key.ToString()
+    let keyString = key.ToString() |> sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase
     use collector = new ResultCollector(config, reporter.ReportProgress, key, Seq.length tests)
     collector.Connect()
     use publisher = new Publisher(config)
