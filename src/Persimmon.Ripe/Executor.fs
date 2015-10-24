@@ -15,6 +15,9 @@ type Executor(config: RabbitMQ, writer: IO.TextWriter) =
   let serializer = FsPickler.CreateBinarySerializer()
   let publisher = new Publisher(config)
 
+  do
+    fprintfn writer "connected rabbitmq: %s" config.Uri
+
   let rec writeResult prefix = function
   | ContextResult ctx ->
     ctx.Children
