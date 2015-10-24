@@ -26,7 +26,7 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
   | Failure(v, e) ->
     let metadata =
       match serializer.UnPickle<TestObject>(v) with
-      | Context ctx -> { Name = ctx.Name; Parameters = []}
+      | Context ctx -> { Name = Some ctx.Name; Parameters = []}
       | TestCase c -> { Name = c.Name; Parameters = c.Parameters}
     let result = Error(metadata, [e], [], TimeSpan.Zero) :> ITestResult
     report result
