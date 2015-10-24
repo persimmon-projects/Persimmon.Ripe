@@ -31,13 +31,10 @@ type Executor(config: RabbitMQ) =
     channel.QueueBind(queueName, RabbitMQ.Exchange, sprintf "%s.*" RabbitMQ.Queue.TestCase)
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(fun args ->
-      let result =
-        try
-          let o = serializer.UnPickle<TestObject>(args.Body)
-          Success(run o)
-        with e -> Failure(args.Body, e)
-      result
-      |> serializer.Pickle
+      try
+        let o = serializer.UnPickle<TestObject>(args.Body)
+        Success(run o)
+      with e -> Failure(args.Body, e)
       |> Publisher.publish publisher RabbitMQ.Queue.Result (resultKey args.RoutingKey)
       channel.BasicAck(args.DeliveryTag, false)
     )
