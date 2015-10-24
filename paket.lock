@@ -1,12 +1,12 @@
 NUGET
   remote: https://nuget.org/api/v2
   specs:
-    FAKE (4.4.4)
-    FAKE.Lib (4.7.1)
-    FAKE.Persimmon (1.0.0-beta3)
-      FAKE.Lib (>= 4.1.0)
+    FAKE (4.7.2)
+    FAKE.Lib (4.1.0)
+    FAKE.Persimmon (1.0.0)
+      FAKE.Lib (4.1.0)
     FSharp.Configuration (0.5.3)
-    FsPickler (1.5.1)
+    FsPickler (1.5.2)
     FsYaml (2.0.0)
       FSharp.Configuration (>= 0.4.10)
       YamlDotNet (>= 3.5.1)
@@ -19,10 +19,10 @@ NUGET
     NuGet.CommandLine (2.8.6)
     Octokit (0.16.0)
       Microsoft.Net.Http
-    Persimmon (1.0.0-beta8)
-    Persimmon.Console (1.0.0-beta8)
-    Persimmon.Runner (1.0.0-beta8)
-      Persimmon (>= 1.0.0-beta8)
+    Persimmon (1.0.0)
+    Persimmon.Console (1.0.0)
+    Persimmon.Runner (1.0.0)
+      Persimmon (>= 1.0.0)
     RabbitMQ.Client (3.5.6)
     SourceLink.Fake (1.1.0)
     YamlDotNet (3.7.0)
