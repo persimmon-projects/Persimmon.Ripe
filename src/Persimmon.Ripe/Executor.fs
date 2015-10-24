@@ -44,7 +44,7 @@ type Executor(config: RabbitMQ, writer: IO.TextWriter) =
     |> Publisher.publish publisher RabbitMQ.Queue.Result (resultKey args.RoutingKey)
     channel.BasicAck(args.DeliveryTag, false)
 
-  member __.Connect() =
+  member __.StartConsume() =
     channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.TestCase, false, false, false, null).QueueName

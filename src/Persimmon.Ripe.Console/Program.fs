@@ -67,7 +67,7 @@ let entryPoint (args: Args) =
     let key = Guid.NewGuid()
     let keyString = key.ToString() |> sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase
     use collector = new ResultCollector(config, reporter.ReportProgress, key, Seq.length tests)
-    collector.Connect()
+    collector.StartConsume()
     use publisher = new Publisher(config)
     watch.Start()
     tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase keyString)

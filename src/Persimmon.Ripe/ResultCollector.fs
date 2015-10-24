@@ -38,7 +38,7 @@ type ResultCollector(config: RabbitMQ, report: ITestResult -> unit, key: Guid, t
       Complete(results)
     else Incomplete
 
-  member __.Connect() =
+  member __.StartConsume() =
     channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
     let queueName = channel.QueueDeclare(RabbitMQ.Queue.Result, false, false, false, null).QueueName
