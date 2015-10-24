@@ -4,7 +4,7 @@ open System
 open Persimmon
 
 type Result =
-  | Success of ITestResult
+  | Success of obj
   | Failure of byte[] * exn
 
 type CollectResult =

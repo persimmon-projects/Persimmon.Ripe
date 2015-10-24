@@ -20,6 +20,9 @@ module RabbitMQ =
   module Queue =
 
     [<Literal>]
+    let Assemblies = "assemblies"
+
+    [<Literal>]
     let TestCase = "testcase"
 
     [<Literal>]

@@ -4,14 +4,29 @@ open System.Text
 open System.Reflection
 open System.Diagnostics
 open Persimmon
+open Persimmon.ActivePatterns
 open Persimmon.Runner
 open Persimmon.Output
 open Persimmon.Ripe
 open FsYaml
+open Nessos.Vagabond
+
+let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
+  let rec inner (collector: ResultCollector) = async {
+    match collector.Results with
+    | Incomplete -> return! inner collector
+    | Complete res ->
+      watch.Stop()
+      let errors = Seq.sumBy TestRunner.countErrors res
+      reporter.ReportProgress(TestResult.endMarker)
+      reporter.ReportSummary(res)
+      consoleReporter.ReportSummary(res)
+      return errors
+  }
+  inner rc
 
 let entryPoint (args: Args) =
   
-  let guid = Guid.NewGuid()
   let watch = Stopwatch()
   
   use progress = if args.NoProgress then TextWriter.Null else Console.Out
@@ -37,20 +52,6 @@ let entryPoint (args: Args) =
       new Printer<_>(consoleOutput, Formatter.SummaryFormatter.normal watch),
       new Printer<_>(fakeError, Formatter.ErrorFormatter.normal))
 
-  let run rs =
-    let rec inner (collector: ResultCollector) = async {
-      match collector.Results with
-      | Incomplete -> return! inner collector
-      | Complete res ->
-        watch.Stop()
-        let errors = Seq.sumBy TestRunner.countErrors res
-        reporter.ReportProgress(TestResult.endMarker)
-        reporter.ReportSummary(res)
-        consoleReporter.ReportSummary(res)
-        return errors
-    }
-    inner rs |> Async.RunSynchronously
-
   if args.Help then
     error.WriteLine(Args.help)
 
@@ -59,19 +60,40 @@ let entryPoint (args: Args) =
     reporter.ReportError("input is empty.")
     -1
   elif notFounds |> List.isEmpty then
+    
     let asms = founds |> List.map (fun f ->
       let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
       Assembly.Load(assemblyRef))
-    // collect and run
-    let tests = TestCollector.collectRootTestObjects asms
+    let tests =
+      TestCollector.collectRootTestObjects asms
+      |> List.map (fun x -> fun () ->
+        match x with
+        | Context ctx -> ctx.Run(ignore) |> box
+        | TestCase tc -> tc.Run() |> box
+      )
+    
     let key = Guid.NewGuid()
-    let keyString = key.ToString() |> sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase
-    use collector = new ResultCollector(config, reporter.ReportProgress, key, Seq.length tests)
+    let keyString = key.ToString()
+    let testCaseKey = sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase keyString
+    let asmsKey = sprintf "%s.%s" Config.RabbitMQ.Queue.Assemblies keyString
+    
+    let vmanager = Vagabond.Initialize(".")
+    let asms = vmanager.ComputeObjectDependencies(tests, permitCompilation = true)
+    vmanager.LoadVagabondAssemblies(asms) |> ignore
+    
+    use publisher = new Publisher(config, vmanager)
+    Publisher.publish publisher Config.RabbitMQ.Queue.Assemblies asmsKey asms
+    
+    use collector = new ResultCollector(config, vmanager, reporter.ReportProgress, key, Seq.length tests)
     collector.StartConsume()
-    use publisher = new Publisher(config)
-    watch.Start()
-    tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase keyString)
-    run collector
+    
+    async {
+      do! Async.Sleep(100)
+      watch.Start()
+      tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey)
+      return! collectResult watch reporter consoleReporter collector
+    }
+    |> Async.RunSynchronously
   else
     reporter.ReportError("file not found: " + (String.Join(", ", notFounds)))
     -2
