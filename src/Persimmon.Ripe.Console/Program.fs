@@ -14,7 +14,7 @@ let entryPoint (args: Args) =
   let guid = Guid.NewGuid()
   let watch = Stopwatch()
   
-  use progress = if args.NoProgress then IO.TextWriter.Null else Console.Out
+  use progress = if args.NoProgress then TextWriter.Null else Console.Out
   use output = new StreamWriter(args.Output.FullName, false, Encoding.UTF8) :> TextWriter
   use error = Console.Error
   let formatter = Formatter.XmlFormatter.junitStyle watch
@@ -27,6 +27,16 @@ let entryPoint (args: Args) =
       new Printer<_>(output, formatter),
       new Printer<_>(error, Formatter.ErrorFormatter.normal))
 
+  use fakeProgress = TextWriter.Null
+  use consoleOutput = Console.Out
+  use fakeError = TextWriter.Null
+
+  use consoleReporter =
+    new Reporter(
+      new Printer<_>(fakeProgress, Formatter.ProgressFormatter.dot),
+      new Printer<_>(consoleOutput, Formatter.SummaryFormatter.normal watch),
+      new Printer<_>(fakeError, Formatter.ErrorFormatter.normal))
+
   let run rs =
     let rec inner (collector: ResultCollector) = async {
       match collector.Results with
@@ -34,10 +44,10 @@ let entryPoint (args: Args) =
       | Complete res ->
         watch.Stop()
         let errors = Seq.sumBy TestRunner.countErrors res
-        let res = { TestRunner.Errors = errors; TestRunner.ExecutedRootTestResults = res }
         reporter.ReportProgress(TestResult.endMarker)
-        reporter.ReportSummary(res.ExecutedRootTestResults)
-        return res.Errors
+        reporter.ReportSummary(res)
+        consoleReporter.ReportSummary(res)
+        return errors
     }
     inner rs |> Async.RunSynchronously
 
