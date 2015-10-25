@@ -1,8 +1,7 @@
-﻿module Persimmon.Ripe.Connection
+﻿module Persimmon.Ripe.RabbitMQ.Connection
 
 open System
 open RabbitMQ.Client
-open Config
 
 let create config =
   let uri = Uri(config.Uri)

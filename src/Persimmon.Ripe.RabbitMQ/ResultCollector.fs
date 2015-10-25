@@ -1,4 +1,4 @@
-﻿namespace Persimmon.Ripe
+﻿namespace Persimmon.Ripe.RabbitMQ
 
 open System
 open System.IO
@@ -6,19 +6,19 @@ open System.Collections.Concurrent
 open RabbitMQ.Client
 open RabbitMQ.Client.Events
 open Nessos.Vagabond
-open Config
 open Persimmon
 open Persimmon.ActivePatterns
+open Persimmon.Ripe
 
 type ResultCollector
   (
-  config: RabbitMQ,
+  config: Config,
   vmanager: VagabondManager,
   report: ITestResult -> unit,
   keyString: string,
   testCount: int) =
 
-  let testCaseKey = sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase keyString
+  let testCaseKey = sprintf "%s.%s" Constant.Queue.TestCase keyString
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
@@ -46,7 +46,7 @@ type ResultCollector
       results.Add(result)
     | t ->
       { t with Retry = t.Retry - 1 }
-      |> Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey
+      |> Publisher.publish publisher Constant.Queue.TestCase testCaseKey
 
   let receive (args: BasicDeliverEventArgs) =
     try
@@ -63,9 +63,9 @@ type ResultCollector
 
   member __.StartConsume() =
     channel.BasicQos(0u, 1us, false)
-    channel.ExchangeDeclare(RabbitMQ.Exchange, RabbitMQ.Topic)
-    let queueName = channel.QueueDeclare(RabbitMQ.Queue.Result, false, false, false, null).QueueName
-    channel.QueueBind(queueName, RabbitMQ.Exchange, sprintf "%s.%s" RabbitMQ.Queue.Result keyString)
+    channel.ExchangeDeclare(Constant.Exchange, Constant.Topic)
+    let queueName = channel.QueueDeclare(Constant.Queue.Result, false, false, false, null).QueueName
+    channel.QueueBind(queueName, Constant.Exchange, sprintf "%s.%s" Constant.Queue.Result keyString)
     let consumer = EventingBasicConsumer(channel)
     consumer.Received.Add(receive)
     channel.BasicConsume(queueName, false, consumer) |> ignore

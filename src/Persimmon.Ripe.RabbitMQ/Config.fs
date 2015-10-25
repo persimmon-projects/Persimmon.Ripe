@@ -1,15 +1,14 @@
-﻿module Persimmon.Ripe.Config
+﻿namespace Persimmon.Ripe.RabbitMQ
 
 open System
 
-type RabbitMQ = {
+type Config = {
   Uri: string
   UserName: string
   Password: string
 }
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module RabbitMQ =
+module Constant =
 
   [<Literal>]
   let Exchange = "persimmon_ripe"

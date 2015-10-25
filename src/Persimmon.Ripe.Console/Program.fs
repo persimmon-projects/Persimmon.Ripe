@@ -8,6 +8,7 @@ open Persimmon.ActivePatterns
 open Persimmon.Runner
 open Persimmon.Output
 open Persimmon.Ripe
+open Persimmon.Ripe.RabbitMQ
 open FsYaml
 open Nessos.Vagabond
 
@@ -57,7 +58,7 @@ let entryPoint (args: Args) =
   use error = Console.Error
   let formatter = Formatter.XmlFormatter.junitStyle watch
 
-  let config = Yaml.load<Config.RabbitMQ> <| File.ReadAllText(args.RemoteConfig.FullName)
+  let config = Yaml.load<Config> <| File.ReadAllText(args.RemoteConfig.FullName)
 
   use reporter =
     new Reporter(
@@ -84,15 +85,15 @@ let entryPoint (args: Args) =
 
     let key = Guid.NewGuid()
     let keyString = key.ToString()
-    let testCaseKey = sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase keyString
-    let asmsKey = sprintf "%s.%s" Config.RabbitMQ.Queue.Assemblies keyString
+    let testCaseKey = sprintf "%s.%s" Constant.Queue.TestCase keyString
+    let asmsKey = sprintf "%s.%s" Constant.Queue.Assemblies keyString
     
     let vmanager = Vagabond.Initialize(".")
     let asms = vmanager.ComputeObjectDependencies(tests, permitCompilation = true)
     vmanager.LoadVagabondAssemblies(asms) |> ignore
     
     use publisher = new Publisher(config, vmanager)
-    Publisher.publish publisher Config.RabbitMQ.Queue.Assemblies asmsKey asms
+    Publisher.publish publisher Constant.Queue.Assemblies asmsKey asms
     
     use collector = new ResultCollector(config, vmanager, reporter.ReportProgress, keyString, Seq.length tests)
     collector.StartConsume()
@@ -103,7 +104,7 @@ let entryPoint (args: Args) =
           async {
             do! Async.Sleep(100)
             watch.Start()
-            tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey)
+            tests |> List.iter (Publisher.publish publisher Constant.Queue.TestCase testCaseKey)
             return! collectResult watch reporter consoleReporter collector
           }
           |> Async.Catch
