@@ -18,7 +18,7 @@ type Executor(config: Config, vmanager: VagabondManager, writer: TextWriter) =
   do
     fprintfn writer "connected rabbitmq: %s" config.Uri
 
-    vmanager.ComputeObjectDependencies(typeof<Result>, permitCompilation = true)
+    vmanager.ComputeObjectDependencies(typeof<Executor>, permitCompilation = true)
     |> vmanager.LoadVagabondAssemblies
     |> Seq.iter (fprintfn writer "%A")
 
