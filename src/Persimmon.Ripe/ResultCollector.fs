@@ -52,7 +52,6 @@ type ResultCollector
     try
       vmanager.Serializer.UnPickle<Result>(args.Body)
       |> addOrRetry
-      |> ignore
       channel.BasicAck(args.DeliveryTag, false)
     with e -> printfn "%A" e
 
