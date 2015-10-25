@@ -18,6 +18,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.RabbitMQ.Wor
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.RabbitMQ", "src\Persimmon.Ripe.RabbitMQ\Persimmon.Ripe.RabbitMQ.fsproj", "{7FB817B9-D3A0-4772-A04A-1AFF163926B9}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.AzureServiceBus", "src\Persimmon.Ripe.AzureServiceBus\Persimmon.Ripe.AzureServiceBus.fsproj", "{05026219-B9F5-42DB-AED3-26BC10009A67}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{EC57C494-9DA7-495E-AB19-3580DA0B62C6}"
 EndProject
 Global
@@ -46,6 +48,10 @@ Global
 		{7FB817B9-D3A0-4772-A04A-1AFF163926B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FB817B9-D3A0-4772-A04A-1AFF163926B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FB817B9-D3A0-4772-A04A-1AFF163926B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05026219-B9F5-42DB-AED3-26BC10009A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05026219-B9F5-42DB-AED3-26BC10009A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05026219-B9F5-42DB-AED3-26BC10009A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05026219-B9F5-42DB-AED3-26BC10009A67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

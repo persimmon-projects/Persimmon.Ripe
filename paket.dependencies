@@ -11,5 +11,6 @@ nuget Persimmon
 nuget Persimmon.Runner
 nuget FsYaml
 nuget Vagabond
+nuget WindowsAzure.ServiceBus
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx
