@@ -12,11 +12,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe", "src\Persi
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Tests", "tests\Persimmon.Ripe.Tests\Persimmon.Ripe.Tests.fsproj", "{6785B042-4B57-4C95-869E-9CE06AC53395}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Console", "src\Persimmon.Ripe.Console\Persimmon.Ripe.Console.fsproj", "{BDAEB4EE-4446-4B57-AD53-E78DF4277535}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.RabbitMQ.Console", "examples\Persimmon.Ripe.RabbitMQ.Console\Persimmon.Ripe.RabbitMQ.Console.fsproj", "{BDAEB4EE-4446-4B57-AD53-E78DF4277535}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Server", "src\Persimmon.Ripe.Server\Persimmon.Ripe.Server.fsproj", "{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.RabbitMQ.Worker", "examples\Persimmon.Ripe.RabbitMQ.Worker\Persimmon.Ripe.RabbitMQ.Worker.fsproj", "{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.RabbitMQ", "src\Persimmon.Ripe.RabbitMQ\Persimmon.Ripe.RabbitMQ.fsproj", "{7FB817B9-D3A0-4772-A04A-1AFF163926B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{EC57C494-9DA7-495E-AB19-3580DA0B62C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,5 +49,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BDAEB4EE-4446-4B57-AD53-E78DF4277535} = {EC57C494-9DA7-495E-AB19-3580DA0B62C6}
+		{2BD6FF2B-A7AD-4E5F-BA7F-C13D01EA5056} = {EC57C494-9DA7-495E-AB19-3580DA0B62C6}
 	EndGlobalSection
 EndGlobal

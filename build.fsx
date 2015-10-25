@@ -75,20 +75,6 @@ Target "AssemblyInfo" (fun _ ->
         Attribute.Guid "7fb817b9-d3a0-4772-a04a-1aff163926b9"
     ] @ common
     |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.RabbitMQ/AssemblyInfo.fs"
-
-    [
-        Attribute.Title "Persimmon.Ripe.Console"
-        Attribute.Description ""
-        Attribute.Guid "22E8C97F-E884-4C1E-A5A4-D80BAB8A33B9"
-    ] @ common
-    |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.Console/AssemblyInfo.fs"
-
-    [
-        Attribute.Title "Persimmon.Ripe.Server"
-        Attribute.Description ""
-        Attribute.Guid "2bd6ff2b-a7ad-4e5f-ba7f-c13d01ea5056"
-    ] @ common
-    |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.Server/AssemblyInfo.fs"
 )
 
 // Copies binaries from default VS location to exepcted bin folder

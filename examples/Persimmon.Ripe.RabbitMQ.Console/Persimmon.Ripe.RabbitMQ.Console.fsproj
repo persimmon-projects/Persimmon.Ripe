@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>bdaeb4ee-4446-4b57-ad53-e78df4277535</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Persimmon.Ripe.Console</RootNamespace>
-    <AssemblyName>Persimmon.Ripe.Console</AssemblyName>
+    <RootNamespace>Persimmon.Ripe.RabbitMQ.Console</RootNamespace>
+    <AssemblyName>Persimmon.Ripe.RabbitMQ.Console</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <Name>Persimmon.Ripe.Console</Name>
+    <Name>Persimmon.Ripe.RabbitMQ.Console</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Persimmon.Ripe.Console.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Persimmon.Ripe.RabbitMQ.Console.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Persimmon.Ripe.Console.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Persimmon.Ripe.RabbitMQ.Console.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -54,7 +54,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
@@ -71,7 +71,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Persimmon.Ripe.RabbitMQ\Persimmon.Ripe.RabbitMQ.fsproj">
+    <ProjectReference Include="..\..\src\Persimmon.Ripe.RabbitMQ\Persimmon.Ripe.RabbitMQ.fsproj">
       <Name>Persimmon.Ripe.RabbitMQ</Name>
       <Project>{7fb817b9-d3a0-4772-a04a-1aff163926b9}</Project>
       <Private>True</Private>
@@ -83,7 +83,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\Persimmon.Ripe\Persimmon.Ripe.fsproj">
+    <ProjectReference Include="..\..\src\Persimmon.Ripe\Persimmon.Ripe.fsproj">
       <Name>Persimmon.Ripe</Name>
       <Project>{fb706671-5fe0-47e2-b1b5-879d651fb653}</Project>
       <Private>True</Private>
