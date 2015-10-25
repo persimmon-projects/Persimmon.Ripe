@@ -34,31 +34,6 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Persimmon.Ripe.AzureServiceBus.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="app.config.install.xdt">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="web.config.install.xdt">
-      <Paket>True</Paket>
-    </Content>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Persimmon.Ripe\Persimmon.Ripe.fsproj">
-      <Name>Persimmon.Ripe</Name>
-      <Project>{fb706671-5fe0-47e2-b1b5-879d651fb653}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references" />
-  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
@@ -289,4 +264,31 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Content Include="app.config.install.xdt">
+      <Paket>True</Paket>
+    </Content>
+    <Content Include="web.config.install.xdt">
+      <Paket>True</Paket>
+    </Content>
+    <None Include="paket.references" />
+    <Compile Include="Constant.fs" />
+    <Compile Include="Publisher.fs" />
+    <Compile Include="Executor.fs" />
+    <Compile Include="ResultCollector.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <ProjectReference Include="..\Persimmon.Ripe\Persimmon.Ripe.fsproj">
+      <Name>Persimmon.Ripe</Name>
+      <Project>{fb706671-5fe0-47e2-b1b5-879d651fb653}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
