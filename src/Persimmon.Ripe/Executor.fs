@@ -45,8 +45,8 @@ type Executor(config: RabbitMQ, vmanager: VagabondManager, writer: TextWriter) =
   let receiveTest (args: BasicDeliverEventArgs) =
     let result =
       try
-        let f = vmanager.Serializer.UnPickle<TextWriter -> obj>(args.Body)
-        Success(f writer)
+        let t = vmanager.Serializer.UnPickle<Test>(args.Body)
+        Success(t.Run writer)
       with e -> Failure(args.Body, e)
     result
     |> Publisher.publish publisher RabbitMQ.Queue.Result (resultKey args.RoutingKey)

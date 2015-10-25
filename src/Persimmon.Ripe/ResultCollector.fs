@@ -1,6 +1,7 @@
 ﻿namespace Persimmon.Ripe
 
 open System
+open System.IO
 open System.Collections.Concurrent
 open RabbitMQ.Client
 open RabbitMQ.Client.Events
@@ -14,39 +15,43 @@ type ResultCollector
   config: RabbitMQ,
   vmanager: VagabondManager,
   report: ITestResult -> unit,
-  key: Guid,
+  keyString: string,
   testCount: int) =
 
-  let keyString = key.ToString()
+  let testCaseKey = sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase keyString
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
+  let publisher = new Publisher(config, vmanager)
 
   let results = ConcurrentBag<ITestResult>()
+
+  let fakeReporter = TextWriter.Null
 
   do
     vmanager.ComputeObjectDependencies(typeof<Result>, permitCompilation = true)
     |> vmanager.LoadVagabondAssemblies
     |> ignore
 
-  let add = function
+  let addOrRetry = function
   | Success result ->
     let result = result :?> ITestResult
     report result
     results.Add(result)
   | Failure(v, e) ->
-    let metadata =
-      match vmanager.Serializer.UnPickle<TestObject>(v) with
-      | Context ctx -> { Name = Some ctx.Name; Parameters = []}
-      | TestCase c -> { Name = c.Name; Parameters = c.Parameters}
-    let result = Error(metadata, [e], [], TimeSpan.Zero) :> ITestResult
-    report result
-    results.Add(result)
+    match vmanager.Serializer.UnPickle<Test>(v) with
+    | { Retry = 0; Run = f } ->
+      let result = f fakeReporter :?> ITestResult
+      report result
+      results.Add(result)
+    | t ->
+      { t with Retry = t.Retry - 1 }
+      |> Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey
 
   let receive (args: BasicDeliverEventArgs) =
     try
       vmanager.Serializer.UnPickle<Result>(args.Body)
-      |> add
+      |> addOrRetry
       |> ignore
       channel.BasicAck(args.DeliveryTag, false)
     with e -> printfn "%A" e
@@ -69,6 +74,8 @@ type ResultCollector
   member __.Dispose() =
     channel.Dispose()
     connection.Dispose()
+    publisher.Dispose()
+    fakeReporter.Dispose()
 
   interface IDisposable with
     member this.Dispose() = this.Dispose()

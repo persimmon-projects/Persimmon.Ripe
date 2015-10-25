@@ -11,7 +11,7 @@ open Persimmon.Ripe
 open FsYaml
 open Nessos.Vagabond
 
-let loadTests (files: FileInfo list) =
+let loadTests retry (files: FileInfo list) =
 
   let rec writeResult (writer: TextWriter) prefix = function
   | ContextResult ctx ->
@@ -20,18 +20,19 @@ let loadTests (files: FileInfo list) =
   | EndMarker -> writer.WriteLine()
   | TestResult tr -> fprintfn writer "end test: %s%s" prefix tr.FullName
 
-  let asms = files |> List.map (fun f ->
-    let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
-    Assembly.Load(assemblyRef))
-  TestCollector.collectRootTestObjects asms
-  |> List.map (fun x -> fun writer ->
+  let run x = fun writer ->
     match x with
     | Context ctx -> ctx.Run(writeResult writer (sprintf "%s." ctx.Name)) |> box
     | TestCase tc ->
       let result = tc.Run()
       writeResult writer "" result
       box result
-  )
+
+  let asms = files |> List.map (fun f ->
+    let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
+    Assembly.Load(assemblyRef))
+  TestCollector.collectRootTestObjects asms
+  |> List.map (fun x -> { Retry = retry; Run = run x })
 
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
   let rec inner (collector: ResultCollector) = async {
@@ -79,7 +80,7 @@ let entryPoint (args: Args) =
     -1
   elif notFounds |> List.isEmpty then
        
-    let tests = loadTests founds
+    let tests = loadTests args.RetryCount founds
 
     let key = Guid.NewGuid()
     let keyString = key.ToString()
@@ -93,7 +94,7 @@ let entryPoint (args: Args) =
     use publisher = new Publisher(config, vmanager)
     Publisher.publish publisher Config.RabbitMQ.Queue.Assemblies asmsKey asms
     
-    use collector = new ResultCollector(config, vmanager, reporter.ReportProgress, key, Seq.length tests)
+    use collector = new ResultCollector(config, vmanager, reporter.ReportProgress, keyString, Seq.length tests)
     collector.StartConsume()
     
     let result =
