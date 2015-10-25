@@ -1,6 +1,7 @@
 ﻿namespace Persimmon.Ripe
 
 open System
+open System.IO
 open RabbitMQ.Client
 open RabbitMQ.Client.Events
 open Nessos.Vagabond
@@ -8,7 +9,7 @@ open Config
 open Persimmon
 open Persimmon.ActivePatterns
 
-type Executor(config: RabbitMQ, vmanager: VagabondManager, writer: IO.TextWriter) =
+type Executor(config: RabbitMQ, vmanager: VagabondManager, writer: TextWriter) =
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
@@ -44,8 +45,8 @@ type Executor(config: RabbitMQ, vmanager: VagabondManager, writer: IO.TextWriter
   let receiveTest (args: BasicDeliverEventArgs) =
     let result =
       try
-        let f = vmanager.Serializer.UnPickle<unit -> obj>(args.Body)
-        Success(f ())
+        let f = vmanager.Serializer.UnPickle<TextWriter -> obj>(args.Body)
+        Success(f writer)
       with e -> Failure(args.Body, e)
     result
     |> Publisher.publish publisher RabbitMQ.Queue.Result (resultKey args.RoutingKey)

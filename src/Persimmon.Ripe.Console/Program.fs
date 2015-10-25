@@ -13,23 +13,23 @@ open Nessos.Vagabond
 
 let loadTests (files: FileInfo list) =
 
-  let rec writeResult prefix = function
+  let rec writeResult (writer: TextWriter) prefix = function
   | ContextResult ctx ->
     ctx.Children
-    |> Seq.iter (writeResult (sprintf "%s%s." prefix ctx.Name))
-  | EndMarker -> printfn ""
-  | TestResult tr -> printfn "end test: %s%s" prefix tr.FullName
+    |> Seq.iter (writeResult writer (sprintf "%s%s." prefix ctx.Name))
+  | EndMarker -> writer.WriteLine()
+  | TestResult tr -> fprintfn writer "end test: %s%s" prefix tr.FullName
 
   let asms = files |> List.map (fun f ->
     let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
     Assembly.Load(assemblyRef))
   TestCollector.collectRootTestObjects asms
-  |> List.map (fun x -> fun () ->
+  |> List.map (fun x -> fun writer ->
     match x with
-    | Context ctx -> ctx.Run(writeResult (sprintf "%s." ctx.Name)) |> box
+    | Context ctx -> ctx.Run(writeResult writer (sprintf "%s." ctx.Name)) |> box
     | TestCase tc ->
       let result = tc.Run()
-      writeResult "" result
+      writeResult writer "" result
       box result
   )
 
