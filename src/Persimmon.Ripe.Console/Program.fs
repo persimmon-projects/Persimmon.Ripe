@@ -12,14 +12,25 @@ open FsYaml
 open Nessos.Vagabond
 
 let loadTests (files: FileInfo list) =
+
+  let rec writeResult prefix = function
+  | ContextResult ctx ->
+    ctx.Children
+    |> Seq.iter (writeResult (sprintf "%s.%s." prefix ctx.Name))
+  | EndMarker -> printfn ""
+  | TestResult tr -> printfn "end test: %s%s" prefix tr.FullName
+
   let asms = files |> List.map (fun f ->
     let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
     Assembly.Load(assemblyRef))
   TestCollector.collectRootTestObjects asms
   |> List.map (fun x -> fun () ->
     match x with
-    | Context ctx -> ctx.Run(ignore) |> box
-    | TestCase tc -> tc.Run() |> box
+    | Context ctx -> ctx.Run(writeResult (sprintf "%s." ctx.Name)) |> box
+    | TestCase tc ->
+      let result = tc.Run()
+      writeResult "" result
+      box result
   )
 
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
