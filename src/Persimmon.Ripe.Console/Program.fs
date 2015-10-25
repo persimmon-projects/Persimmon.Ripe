@@ -42,15 +42,11 @@ let entryPoint (args: Args) =
       new Printer<_>(output, formatter),
       new Printer<_>(error, Formatter.ErrorFormatter.normal))
 
-  use fakeProgress = TextWriter.Null
-  use consoleOutput = Console.Out
-  use fakeError = TextWriter.Null
-
   use consoleReporter =
     new Reporter(
-      new Printer<_>(fakeProgress, Formatter.ProgressFormatter.dot),
-      new Printer<_>(consoleOutput, Formatter.SummaryFormatter.normal watch),
-      new Printer<_>(fakeError, Formatter.ErrorFormatter.normal))
+      new Printer<_>(TextWriter.Null, Formatter.ProgressFormatter.dot),
+      new Printer<_>(Console.Out, Formatter.SummaryFormatter.normal watch),
+      new Printer<_>(TextWriter.Null, Formatter.ErrorFormatter.normal))
 
   if args.Help then
     error.WriteLine(Args.help)
