@@ -7,6 +7,7 @@ type Args = {
   Inputs: FileInfo list
   Output: FileInfo
   NoProgress: bool
+  Timeout: int
   RemoteConfig: FileInfo
   Help: bool
 }
@@ -18,6 +19,7 @@ module Args =
     Output = FileInfo(@".\report.xml")
     NoProgress = false
     RemoteConfig = FileInfo(@".\service.yml")
+    Timeout = 600000
     Help = false
   }
 
@@ -44,6 +46,7 @@ module Args =
       | "output" -> parse { acc with Output = FileInfo(value) } rest
       | "server" -> parse { acc with RemoteConfig = FileInfo(value) } rest
       | "inputs" -> parse { acc with Inputs = acc.Inputs @ toFileInfoList value } rest
+      | "timeout" -> parse { acc with Timeout = Int32.Parse(value) } rest
       | other -> failwithf "unknown option: %s" other
   | other::rest -> parse { acc with Inputs = (FileInfo(other))::acc.Inputs } rest
 
@@ -57,6 +60,8 @@ module Args =
     comma separated input files.
 --no-progress
     disabled the report of progress.
+--timeout:<ms>
+    config test execution timeout.
 --server:<file>
     config the output file to print the result.
 --help

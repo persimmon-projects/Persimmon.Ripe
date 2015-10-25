@@ -11,6 +11,17 @@ open Persimmon.Ripe
 open FsYaml
 open Nessos.Vagabond
 
+let loadTests (files: FileInfo list) =
+  let asms = files |> List.map (fun f ->
+    let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
+    Assembly.Load(assemblyRef))
+  TestCollector.collectRootTestObjects asms
+  |> List.map (fun x -> fun () ->
+    match x with
+    | Context ctx -> ctx.Run(ignore) |> box
+    | TestCase tc -> tc.Run() |> box
+  )
+
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
   let rec inner (collector: ResultCollector) = async {
     match collector.Results with
@@ -56,18 +67,9 @@ let entryPoint (args: Args) =
     reporter.ReportError("input is empty.")
     -1
   elif notFounds |> List.isEmpty then
-    
-    let asms = founds |> List.map (fun f ->
-      let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
-      Assembly.Load(assemblyRef))
-    let tests =
-      TestCollector.collectRootTestObjects asms
-      |> List.map (fun x -> fun () ->
-        match x with
-        | Context ctx -> ctx.Run(ignore) |> box
-        | TestCase tc -> tc.Run() |> box
-      )
-    
+       
+    let tests = loadTests founds
+
     let key = Guid.NewGuid()
     let keyString = key.ToString()
     let testCaseKey = sprintf "%s.%s" Config.RabbitMQ.Queue.TestCase keyString
@@ -83,13 +85,23 @@ let entryPoint (args: Args) =
     use collector = new ResultCollector(config, vmanager, reporter.ReportProgress, key, Seq.length tests)
     collector.StartConsume()
     
-    async {
-      do! Async.Sleep(100)
-      watch.Start()
-      tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey)
-      return! collectResult watch reporter consoleReporter collector
-    }
-    |> Async.RunSynchronously
+    let result =
+      try
+        let r =
+          async {
+            do! Async.Sleep(100)
+            watch.Start()
+            tests |> List.iter (Publisher.publish publisher Config.RabbitMQ.Queue.TestCase testCaseKey)
+            return! collectResult watch reporter consoleReporter collector
+          }
+          |> Async.Catch
+        Async.RunSynchronously(r, args.Timeout)
+      with e -> Choice2Of2 e
+    match result with
+    | Choice1Of2 v -> v
+    | Choice2Of2 e ->
+      reporter.ReportError(sprintf "FATAL ERROR: %A" e)
+      -3
   else
     reporter.ReportError("file not found: " + (String.Join(", ", notFounds)))
     -2
