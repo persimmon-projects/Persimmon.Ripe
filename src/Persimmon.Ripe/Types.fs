@@ -1,7 +1,6 @@
 ﻿namespace Persimmon.Ripe
 
 open System
-open System.IO
 open Persimmon
 
 type Result =
@@ -11,8 +10,3 @@ type Result =
 type CollectResult =
   | Complete of ITestResult seq
   | Incomplete
-
-type Test = {
-  Retry: int
-  Run: TextWriter -> obj
-}

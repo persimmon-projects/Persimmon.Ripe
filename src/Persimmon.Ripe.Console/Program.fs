@@ -13,27 +13,11 @@ open FsYaml
 open Nessos.Vagabond
 
 let loadTests retry (files: FileInfo list) =
-
-  let rec writeResult (writer: TextWriter) prefix = function
-  | ContextResult ctx ->
-    ctx.Children
-    |> Seq.iter (writeResult writer (sprintf "%s%s." prefix ctx.Name))
-  | EndMarker -> writer.WriteLine()
-  | TestResult tr -> fprintfn writer "end test: %s%s" prefix tr.FullName
-
-  let run x = fun writer ->
-    match x with
-    | Context ctx -> ctx.Run(writeResult writer (sprintf "%s." ctx.Name)) |> box
-    | TestCase tc ->
-      let result = tc.Run()
-      writeResult writer "" result
-      box result
-
   let asms = files |> List.map (fun f ->
     let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
     Assembly.Load(assemblyRef))
   TestCollector.collectRootTestObjects asms
-  |> List.map (fun x -> { Retry = retry; Run = run x })
+  |> List.map (Test.ofTestObject retry)
 
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
   let rec inner (collector: ResultCollector) = async {

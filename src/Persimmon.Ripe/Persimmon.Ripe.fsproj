@@ -61,6 +61,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Types.fs" />
+    <Compile Include="Test.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
