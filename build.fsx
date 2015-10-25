@@ -77,7 +77,7 @@ Target "AssemblyInfo" (fun _ ->
     |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.Console/AssemblyInfo.fs"
 
     [
-        Attribute.Title "Persimmon.Ripe.Console"
+        Attribute.Title "Persimmon.Ripe.Server"
         Attribute.Description ""
         Attribute.Guid "2bd6ff2b-a7ad-4e5f-ba7f-c13d01ea5056"
     ] @ common
