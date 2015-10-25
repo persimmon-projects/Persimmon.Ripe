@@ -16,7 +16,7 @@ let loadTests (files: FileInfo list) =
   let rec writeResult prefix = function
   | ContextResult ctx ->
     ctx.Children
-    |> Seq.iter (writeResult (sprintf "%s.%s." prefix ctx.Name))
+    |> Seq.iter (writeResult (sprintf "%s%s." prefix ctx.Name))
   | EndMarker -> printfn ""
   | TestResult tr -> printfn "end test: %s%s" prefix tr.FullName
 
