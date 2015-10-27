@@ -85,6 +85,11 @@
       <Project>{7fb817b9-d3a0-4772-a04a-1aff163926b9}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Persimmon.Ripe.Runner\Persimmon.Ripe.Runner.fsproj">
+      <Name>Persimmon.Ripe.Runner</Name>
+      <Project>{495f70fe-07c9-48b5-b984-39fd7bab341f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Persimmon.Ripe\Persimmon.Ripe.fsproj">
       <Name>Persimmon.Ripe</Name>
       <Project>{fb706671-5fe0-47e2-b1b5-879d651fb653}</Project>

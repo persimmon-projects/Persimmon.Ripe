@@ -70,6 +70,13 @@ Target "AssemblyInfo" (fun _ ->
     |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe/AssemblyInfo.fs"
 
     [
+        Attribute.Title "Persimmon.Ripe.Runner"
+        Attribute.Description ""
+        Attribute.Guid "495f70fe-07c9-48b5-b984-39fd7bab341f"
+    ] @ common
+    |> CreateFSharpAssemblyInfo "./src/Persimmon.Ripe.Runner/AssemblyInfo.fs"
+
+    [
         Attribute.Title "Persimmon.Ripe.RabbitMQ"
         Attribute.Description ""
         Attribute.Guid "7fb817b9-d3a0-4772-a04a-1aff163926b9"

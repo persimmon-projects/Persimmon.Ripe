@@ -26,6 +26,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.AzureService
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.AzureServiceBus.Worker", "examples\Persimmon.Ripe.AzureServiceBus.Worker\Persimmon.Ripe.AzureServiceBus.Worker.fsproj", "{59DA8E54-AE72-4634-9901-0FD7F40C0DCB}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Persimmon.Ripe.Runner", "src\Persimmon.Ripe.Runner\Persimmon.Ripe.Runner.fsproj", "{495F70FE-07C9-48B5-B984-39FD7BAB341F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{59DA8E54-AE72-4634-9901-0FD7F40C0DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59DA8E54-AE72-4634-9901-0FD7F40C0DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59DA8E54-AE72-4634-9901-0FD7F40C0DCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{495F70FE-07C9-48B5-B984-39FD7BAB341F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{495F70FE-07C9-48B5-B984-39FD7BAB341F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{495F70FE-07C9-48B5-B984-39FD7BAB341F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{495F70FE-07C9-48B5-B984-39FD7BAB341F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
