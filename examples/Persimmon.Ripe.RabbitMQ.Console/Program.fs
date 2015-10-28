@@ -8,16 +8,17 @@ open Persimmon.ActivePatterns
 open Persimmon.Runner
 open Persimmon.Output
 open Persimmon.Ripe
+open Persimmon.Ripe.Runner
 open Persimmon.Ripe.RabbitMQ
 open FsYaml
 open Nessos.Vagabond
 
 let loadTests retry (files: FileInfo list) =
-  let asms = files |> List.map (fun f ->
+  files
+  |> List.map (fun f ->
     let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
     Assembly.Load(assemblyRef))
-  TestCollector.collectRootTestObjects asms
-  |> List.map (Test.ofTestObject retry)
+  |> TestCollector.collectTests retry
 
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
   let rec inner (collector: ResultCollector) = async {

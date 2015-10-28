@@ -1,15 +1,13 @@
 ﻿namespace Persimmon.Ripe.RabbitMQ
 
-open System
 open System.IO
 open RabbitMQ.Client
 open RabbitMQ.Client.Events
 open Nessos.Vagabond
-open Persimmon
-open Persimmon.ActivePatterns
-open Persimmon.Ripe
+open Persimmon.Ripe.Runner
 
 type Executor(config: Config, vmanager: VagabondManager, writer: TextWriter) =
+  inherit TestExecutor<Config, Routing>(config, vmanager, writer)
 
   let connection = Connection.create config
   let channel = Connection.createChannel connection
@@ -18,58 +16,38 @@ type Executor(config: Config, vmanager: VagabondManager, writer: TextWriter) =
   do
     fprintfn writer "connected rabbitmq: %s" config.Uri
 
-    vmanager.ComputeObjectDependencies(typeof<Executor>, permitCompilation = true)
-    |> vmanager.LoadVagabondAssemblies
-    |> Seq.iter (fprintfn writer "%A")
-
   let resultKey (key: string) =
     match key.Split([|'.'|]) with
     | [|_; key|] -> sprintf "%s.%s" Constant.Queue.Result key
     | _ -> Constant.Queue.Result
 
-  let receiveAssemblies (args: BasicDeliverEventArgs) =
-    try
-      vmanager.Serializer.UnPickle<VagabondAssembly []>(args.Body)
-      |> vmanager.LoadVagabondAssemblies
-      |> Seq.iter (fprintfn writer "%A")
-    with e -> fprintfn writer "%A" e
+  member private __.ReceiveAssembies(args: BasicDeliverEventArgs) =
+    base.LoadAssemblies(fun () -> args.Body)
 
-  let consumeAssemblies () =
+  override this.ConsumeAssemblies() =
     channel.ExchangeDeclare(Constant.Exchange, Constant.Topic)
     let queueName = channel.QueueDeclare(Constant.Queue.Assemblies, false, false, false, null).QueueName
     channel.QueueBind(queueName, Constant.Exchange, sprintf "%s.*" Constant.Queue.Assemblies)
     let consumer = EventingBasicConsumer(channel)
-    consumer.Received.Add(receiveAssemblies)
+    consumer.Received.Add(this.ReceiveAssembies)
     channel.BasicConsume(queueName, true, consumer) |> ignore
 
-  let receiveTest (args: BasicDeliverEventArgs) =
-    let result =
-      try
-        let t = vmanager.Serializer.UnPickle<Test>(args.Body)
-        Success(t.Run writer)
-      with e -> Failure(args.Body, e)
-    result
+  member private __.ReceiveTest (args: BasicDeliverEventArgs) =
+    base.RunTest(fun () -> args.Body)
     |> Publisher.publish publisher Constant.Queue.Result (resultKey args.RoutingKey)
     channel.BasicAck(args.DeliveryTag, false)
 
-  let consumeTest () =
+  override this.ConsumeTest () =
     channel.BasicQos(0u, 1us, false)
     channel.ExchangeDeclare(Constant.Exchange, Constant.Topic)
     let queueName = channel.QueueDeclare(Constant.Queue.TestCase, false, false, false, null).QueueName
     channel.QueueBind(queueName, Constant.Exchange, sprintf "%s.*" Constant.Queue.TestCase)
     let consumer = EventingBasicConsumer(channel)
-    consumer.Received.Add(receiveTest)
+    consumer.Received.Add(this.ReceiveTest)
     channel.BasicConsume(queueName, false, consumer) |> ignore
 
-  member __.StartConsume() =
-    consumeAssemblies ()
-    consumeTest ()
-
-  member __.Dispose() =
+  override __.Dispose() =
+    base.Dispose()
     publisher.Dispose()
     channel.Dispose()
     connection.Dispose()
-    writer.Dispose()
-
-  interface IDisposable with
-    member this.Dispose() = this.Dispose()

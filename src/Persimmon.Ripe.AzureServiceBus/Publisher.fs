@@ -4,8 +4,15 @@ open System
 open Nessos.Vagabond
 open Microsoft.ServiceBus
 open Microsoft.ServiceBus.Messaging
+open Persimmon.Ripe.Runner
+
+type Routing = {
+  Name: string
+  Key: string
+}
 
 type Publisher(connectionString: string, vmanager: VagabondManager) =
+  inherit TestPublisher<string, Routing>(connectionString, vmanager)
  
   let namespaceManager = NamespaceManager.CreateFromConnectionString(connectionString)
 
@@ -15,12 +22,15 @@ type Publisher(connectionString: string, vmanager: VagabondManager) =
 
   let client = TopicClient.CreateFromConnectionString(connectionString, Constant.Topic)
   
-  member __.Publish(keyName, key: string, value) =
+  override __.Publish(routingKey, value) =
     use msg = new BrokeredMessage(vmanager.Serializer.Pickle(value))
-    msg.Properties.[keyName] <- key
+    msg.Properties.[routingKey.Name] <- routingKey.Key
     client.Send(msg)
+
+  override __.Dispose() = ()
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Publisher =
 
-  let publish (publisher: Publisher) keyName key value = publisher.Publish(keyName, key, value)
+  let publish (publisher: Publisher) keyName key value =
+    publisher.PublishTest({ Name = keyName; Key = key}, value)

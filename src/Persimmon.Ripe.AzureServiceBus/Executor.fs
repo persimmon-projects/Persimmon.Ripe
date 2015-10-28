@@ -5,11 +5,11 @@ open System.IO
 open Nessos.Vagabond
 open Microsoft.ServiceBus
 open Microsoft.ServiceBus.Messaging
-open Persimmon
-open Persimmon.ActivePatterns
 open Persimmon.Ripe
+open Persimmon.Ripe.Runner
 
 type Executor(connectionString: string, vmanager: VagabondManager, writer: TextWriter) =
+  inherit TestExecutor<string, Routing>(connectionString, vmanager, writer)
 
   let namespaceManager = NamespaceManager.CreateFromConnectionString(connectionString)
 
@@ -20,10 +20,6 @@ type Executor(connectionString: string, vmanager: VagabondManager, writer: TextW
   let publisher = new Publisher(connectionString, vmanager)
 
   do
-    vmanager.ComputeObjectDependencies(typeof<Executor>, permitCompilation = true)
-    |> vmanager.LoadVagabondAssemblies
-    |> Seq.iter (fprintfn writer "%A")
-
     if not <| namespaceManager.SubscriptionExists(Constant.Topic, Constant.Subscription.Assemblies) then
       namespaceManager.CreateSubscription(Constant.Topic, Constant.Subscription.Assemblies)
       |> ignore
@@ -36,37 +32,23 @@ type Executor(connectionString: string, vmanager: VagabondManager, writer: TextW
     SubscriptionClient.CreateFromConnectionString(
       connectionString, Constant.Topic, Constant.Subscription.Assemblies, ReceiveMode.ReceiveAndDelete)
 
-  let receiveAssemblies (msg: BrokeredMessage) =
-    try
-      vmanager.Serializer.UnPickle<VagabondAssembly []>(msg.GetBody<byte []>())
-      |> vmanager.LoadVagabondAssemblies
-      |> Seq.iter (fprintfn writer "%A")
-    with e -> fprintfn writer "%A" e
-
-  let subscribeAssemblies () =
-    let options = OnMessageOptions(AutoComplete = true)
-    assembliesClient.OnMessage(Action<BrokeredMessage>(receiveAssemblies), options)
-
   let testClient =
     SubscriptionClient.CreateFromConnectionString(connectionString, Constant.Topic, Constant.Subscription.TestCase)
 
   let getKey (msg: BrokeredMessage) = msg.Properties.[Constant.Key.TestCase] :?> string
 
-  let receiveTest (msg: BrokeredMessage) =
-    let result =
-      let body = msg.GetBody<byte []>()
-      try
-        let t = vmanager.Serializer.UnPickle<Test>(body)
-        Success(t.Run writer)
-      with e -> Failure(body, e)
-    result
+  member private __.ReceiveAssemblies(msg: BrokeredMessage) =
+    base.LoadAssemblies(fun () -> msg.GetBody<byte []>())
+
+  override this.ConsumeAssemblies() =
+    let options = OnMessageOptions(AutoComplete = true)
+    assembliesClient.OnMessage(Action<BrokeredMessage>(this.ReceiveAssemblies), options)
+
+  member private __.ReceiveTest(msg: BrokeredMessage) =
+    base.RunTest(fun () -> msg.GetBody<byte []>())
     |> Publisher.publish publisher Constant.Key.Result (getKey msg)
     msg.Complete()
 
-  let subscribeTest () =
+  override this.ConsumeTest() =
     let options = OnMessageOptions(AutoComplete = false)
-    testClient.OnMessage(Action<BrokeredMessage>(receiveTest), options)
-
-  member __.StartConsume() =
-    subscribeAssemblies ()
-    subscribeTest ()
+    testClient.OnMessage(Action<BrokeredMessage>(this.ReceiveTest), options)

@@ -9,15 +9,16 @@ open Persimmon.ActivePatterns
 open Persimmon.Runner
 open Persimmon.Output
 open Persimmon.Ripe
+open Persimmon.Ripe.Runner
 open Persimmon.Ripe.AzureServiceBus
 open Nessos.Vagabond
 
 let loadTests retry (files: FileInfo list) =
-  let asms = files |> List.map (fun f ->
+  files
+  |> List.map (fun f ->
     let assemblyRef = AssemblyName.GetAssemblyName(f.FullName)
     Assembly.Load(assemblyRef))
-  TestCollector.collectRootTestObjects asms
-  |> List.map (Test.ofTestObject retry)
+  |> TestCollector.collectTests retry
 
 let collectResult (watch: Stopwatch) (reporter: Reporter) (consoleReporter: Reporter) rc =
   let rec inner (collector: ResultCollector) = async {
@@ -74,11 +75,11 @@ let entryPoint (args: Args) =
     let asms = vmanager.ComputeObjectDependencies(tests, permitCompilation = true)
     vmanager.LoadVagabondAssemblies(asms) |> ignore
     
-    let publisher = Publisher(connectionString, vmanager)
+    use publisher = new Publisher(connectionString, vmanager)
     Publisher.publish publisher Constant.Key.Assemblies keyString asms
     
-    let collector =
-      ResultCollector(connectionString, vmanager, reporter.ReportProgress, keyString, Seq.length tests)
+    use collector =
+      new ResultCollector(connectionString, vmanager, reporter.ReportProgress, keyString, Seq.length tests)
     collector.StartConsume()
     
     let result =
