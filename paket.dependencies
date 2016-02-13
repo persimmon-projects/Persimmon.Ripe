@@ -1,16 +1,20 @@
 source https://api.nuget.org/v3/index.json
 source https://www.nuget.org/api/v2/
 
-nuget FAKE
-nuget FAKE.Persimmon
-nuget Persimmon.Console
-nuget Nuget.CommandLine
 nuget RabbitMQ.Client
-nuget SourceLink.Fake
 nuget Persimmon
 nuget Persimmon.Runner
 nuget FsYaml
 nuget Vagabond
 nuget WindowsAzure.ServiceBus
 
-github fsharp/FAKE modules/Octokit/Octokit.fsx
+group Build
+  source https://api.nuget.org/v3/index.json
+
+  nuget FAKE
+  nuget FAKE.Persimmon
+  nuget Persimmon.Console
+  nuget Nuget.CommandLine
+  nuget SourceLink.Fake
+
+  github fsharp/FAKE modules/Octokit/Octokit.fsx
